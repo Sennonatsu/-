@@ -1,0 +1,35 @@
+name: 木の洞 v84 macOS DMG
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: 构建木の洞 v84 Universal DMG
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+      - name: 下载 v84 源码
+        run: |
+          curl -L --fail --retry 3 "https://us-tiangong-data.oss-accelerate.aliyuncs.com/skycode/video/2026-10-01/2105539269273518080.gz" -o v84-source.tar.gz
+          tar -xzf v84-source.tar.gz
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.12.1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-darwin,x86_64-apple-darwin
+      - name: 安装依赖
+        run: pnpm install --frozen-lockfile
+      - name: 构建 v84 DMG
+        run: pnpm desktop:build --target universal-apple-darwin --bundles dmg
+      - name: 上传 v84 DMG
+        uses: actions/upload-artifact@v4
+        with:
+          name: 木の洞-v84-macOS
+          path: src-tauri/target/universal-apple-darwin/release/bundle/dmg/*.dmg
+          if-no-files-found: error
