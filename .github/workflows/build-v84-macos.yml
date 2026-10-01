@@ -3,6 +3,9 @@ name: 木の洞 v84 macOS DMG
 on:
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     name: 构建木の洞 v84 Universal DMG
@@ -33,3 +36,12 @@ jobs:
           name: 木の洞-v84-macOS
           path: src-tauri/target/universal-apple-darwin/release/bundle/dmg/*.dmg
           if-no-files-found: error
+      - name: 发布 v84 DMG 文件
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v84-macos
+          name: 木の洞 v84 macOS
+          files: src-tauri/target/universal-apple-darwin/release/bundle/dmg/*.dmg
+          draft: false
+          prerelease: false
+          make_latest: false
